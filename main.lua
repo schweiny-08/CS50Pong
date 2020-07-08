@@ -1,7 +1,8 @@
---[[Runs when game first starts up
-    Below sets window size
-]]
+--Runs when game first starts up
 
+push = require 'push' --getting lib from LOVE 
+
+--Below sets window size
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
 
