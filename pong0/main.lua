@@ -24,5 +24,3 @@ function love.draw()
         'center'            --hpw we want it aligned    
     )
 end
-
---placeholder
