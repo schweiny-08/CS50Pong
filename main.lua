@@ -16,6 +16,8 @@ VIRTUAL_HEIGHT = 243
 function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
+    math.randomseed(os.time())
+
     --Declare new font using pixelFont and declaring size
     smallFont = love.graphics.newFont('pixelFont.ttf', 10)
 
@@ -39,21 +41,37 @@ function love.load()
     paddle1 = 30
     paddle2 = VIRTUAL_HEIGHT-50
 
+    --Ball position
+    ballX = VIRTUAL_WIDTH/2-2
+    ballY = VIRTUAL_HEIGHT/2-2
+
+    ballDeltaX = math.random(2) == 1 and 100 and -100
+    ballDeltaY = math.random(-50, 50) 
+
+    --Used to transition between different parts of the game eg: menu, actual game, etc
+    gameState = 'start'
 end
 
 function love.update(dt)
     --Player 1
     if love.keyboard.isDown('w')then
-        paddle1 = paddle1 + -PADDLE_SPEED*dt
+        paddle1 = math.max(0, paddle1 + -PADDLE_SPEED*dt)
     elseif love.keyboard.isDown('s')then
-        paddle1 = paddle1 + PADDLE_SPEED*dt
+        paddle1 = math.min(VIRTUAL_HEIGHT-20, paddle1 + PADDLE_SPEED*dt)
     end
 
     --Player 2
     if love.keyboard.isDown('up')then
-        paddle2 = paddle2 + -PADDLE_SPEED*dt
+        paddle2 = math.max(0, paddle2 + -PADDLE_SPEED*dt)
     elseif love.keyboard.isDown('down')then
-        paddle2 = paddle2 + PADDLE_SPEED*dt
+        paddle2 = math.min(VIRTUAL_HEIGHT-20, paddle2 + PADDLE_SPEED*dt)
+    end
+
+    --Update ball by delta x and y ONLY IF GAMESTATE IS PLAY
+    --Scale velocity by Delta Time so movement is framerate-independent
+    if gameState == 'play'then
+        ballX = ballX + ballDeltaX * dt
+        ballY = ballY + ballDeltaY * dt
     end
 end
 
@@ -62,6 +80,19 @@ function love.keypressed(key)
     --keys can be accessed by string name ie: escape
     if key == 'escape' then
         love.event.quit() --terminated application
+    elseif key = 'enter' or key == 'return'then
+        if gameState == 'start'then
+            gameState = 'play'
+        else
+            gameState = 'start'
+
+            --Below resets game back to start
+            ballX = VIRTUAL_WIDTH/2-2
+            ballY = VIRTUAL_HEIGHT/2-2
+
+            ballDeltaX = math.random(2) == 1 and 100 and -100
+            ballDeltaY = math.random(-50, 50) * 1.5
+        end
     end
 end
 
@@ -98,7 +129,7 @@ function love.draw()
     love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, paddle2, 5, 20)
 
     --Ball
-    love.graphics.rectangle('fill', VIRTUAL_WIDTH/2, VIRTUAL_HEIGHT/2-2,4,4)
+    love.graphics.rectangle('fill', ballX, ballY,4,4)
 
     push:apply('end')
 end
